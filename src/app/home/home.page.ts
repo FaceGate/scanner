@@ -1,31 +1,51 @@
 import { Component } from '@angular/core';
-import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import {
+  CameraPreview,
+  CameraPreviewOptions,
+  CameraPreviewPictureOptions,
+} from '@ionic-native/camera-preview/ngx';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
-  providers: [Camera]
+  styleUrls: ['home.page.scss']
 })
 export class HomePage {
-  imageData: string;
+  picture: string;
 
-  constructor(private camera: Camera) { }
+  cameraOpts: CameraPreviewOptions = {
+    x: 0,
+    y: 0,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    toBack: true
+  };
 
-  getPicture() {
-    const options: CameraOptions = {
-      quality: 100,
-      destinationType: this.camera.DestinationType.DATA_URL,
-      encodingType: this.camera.EncodingType.JPEG,
-      mediaType: this.camera.MediaType.PICTURE
-    };
+  cameraPictureOpts: CameraPreviewPictureOptions = {
+    quality: 100
+  };
 
-    this.camera.getPicture(options)
-      .then((imageData) => {
-        this.imageData = 'data:image/jpeg;base64,' + imageData;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  constructor(private cameraPreview: CameraPreview) { }
+
+  ionViewDidEnter() {
+    this.startCamera();
+  }
+
+  ionViewDidLead() {
+    this.stopCamera();
+  }
+
+  async startCamera() {
+    await this.cameraPreview.startCamera(this.cameraOpts);
+  }
+
+  async stopCamera() {
+    await this.cameraPreview.stopCamera();
+  }
+
+  async takePicture() {
+    const result = await this.cameraPreview.takePicture(this.cameraPictureOpts);
+    this.picture = `data:image/jpeg;base64,${result}`;
+    console.log(this.picture);
   }
 }
