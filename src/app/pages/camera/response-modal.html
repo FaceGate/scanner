@@ -1,0 +1,13 @@
+<div *ngIf="response.success">
+    <p><i class="material-icons icon">check</i></p>
+    <p>Welcome</p>
+    <p>{{response.member.firstName + ' ' + response.member.lastName}}</p>
+</div>
+
+<div *ngIf="!response.success">
+    <p><i class="material-icons icon">warning</i></p>
+    <p>You are not allowed to access this area</p>
+    <p>
+        <button mat-icon-button (click)="onNoClick()"><i class="material-icons">close</i></button>
+    </p>
+</div>
