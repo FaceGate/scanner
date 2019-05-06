@@ -8,7 +8,7 @@ import {Response} from '../class/response';
 })
 export class PictureService {
     response: Response = {
-        success: false,
+        success: true,
         member: {
             id: 1,
             firstName: 'John',

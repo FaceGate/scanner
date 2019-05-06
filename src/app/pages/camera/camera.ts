@@ -53,7 +53,7 @@ export class CameraPage {
         this.pictureService.upload(this.picture).subscribe(response => {
             this.dialog.open(ResponseModalPage, {
                 width: '70%',
-                height: '50%',
+                height: '40%',
                 data: response
             });
         });
