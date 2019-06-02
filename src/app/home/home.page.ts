@@ -5,6 +5,11 @@ import {
   CameraPreviewPictureOptions,
 } from '@ionic-native/camera-preview/ngx';
 
+import { Cloudinary } from '@cloudinary/angular-5.x';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+ 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -25,7 +30,7 @@ export class HomePage {
     quality: 100
   };
 
-  constructor(private cameraPreview: CameraPreview) { }
+  constructor(private cameraPreview: CameraPreview, private cloudinary: Cloudinary, private http: HttpClient) { }
 
   ionViewDidEnter() {
     this.startCamera();
@@ -46,6 +51,39 @@ export class HomePage {
   async takePicture() {
     const result = await this.cameraPreview.takePicture(this.cameraPictureOpts);
     this.picture = `data:image/jpeg;base64,${result}`;
-    console.log(this.picture);
+    this.uploadPhoto(this.picture).subscribe(res => {
+      this.identifyPerson(res.secure_url).subscribe(res => {
+        alert("success")
+      })
+    })
+  }
+
+  private uploadPhoto(image_url: string): Observable<any> {
+    let formData = new FormData();
+    formData.append('file', image_url);
+    formData.append('upload_preset', this.cloudinary.config().upload_preset);
+    return this.http.post(`https://api.cloudinary.com/v1_1/${this.cloudinary.config().cloud_name}/upload`, formData)
+      .pipe(
+        catchError(error => {
+          alert("Error during upload !");
+          return throwError('Error');
+        })
+      );
+  }
+
+  private identifyPerson(secure_url: string): Observable<any> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type':  'application/json'
+      })
+    };
+
+    return this.http.post(`/api/identify`, { "image_url" : secure_url }, httpOptions)
+      .pipe(
+        catchError(error => {
+          console.log(error);
+          return throwError('Error');
+        })
+      );
   }
 }
