@@ -7,7 +7,7 @@
   "proxies": [
     {
       "path": "/api",
-      "proxyUrl": "https://frater.serveo.net"
+      "proxyUrl": "https://infero.serveo.net"
     }
   ]
 }

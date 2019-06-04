@@ -78,7 +78,7 @@ export class HomePage {
       })
     };
 
-    return this.http.post(`/api/identify`, { "image_url" : secure_url }, httpOptions)
+    return this.http.post("https://capio.serveo.net/identify", { "image_url" : secure_url }, httpOptions)
       .pipe(
         catchError(error => {
           console.log(error);
