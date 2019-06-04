@@ -9,7 +9,8 @@ import { Cloudinary } from '@cloudinary/angular-5.x';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
- 
+import { AlertController, LoadingController } from '@ionic/angular';
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -17,6 +18,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class HomePage {
   picture: string;
+
+  loading: any;
 
   cameraOpts: CameraPreviewOptions = {
     x: 0,
@@ -30,7 +33,7 @@ export class HomePage {
     quality: 100
   };
 
-  constructor(private cameraPreview: CameraPreview, private cloudinary: Cloudinary, private http: HttpClient) { }
+  constructor(private cameraPreview: CameraPreview, private cloudinary: Cloudinary, private http: HttpClient, public alertController: AlertController, public loadingController: LoadingController) { }
 
   ionViewDidEnter() {
     this.startCamera();
@@ -51,12 +54,35 @@ export class HomePage {
   async takePicture() {
     const result = await this.cameraPreview.takePicture(this.cameraPictureOpts);
     this.picture = `data:image/jpeg;base64,${result}`;
+    this.presentLoading("Uploading picture ...");
     this.uploadPhoto(this.picture).subscribe(res => {
+      this.loading.dismiss();
+      this.presentLoading("Identifying picture ...");
       this.identifyPerson(res.secure_url).subscribe(res => {
-        alert("success")
+        this.loading.dismiss();
+        this.presentAlert("Success", "user_id: " + res.user_id);
       })
     })
   }
+
+  async presentAlert(statusText: string, message: string) {
+    const alert = await this.alertController.create({
+      header: statusText,
+      message: message,
+      buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
+  async presentLoading(message: string) {
+    
+    this.loading = await this.loadingController.create({
+      message: message
+    });
+
+    await this.loading.present();
+  }s
 
   private uploadPhoto(image_url: string): Observable<any> {
     let formData = new FormData();
@@ -65,8 +91,9 @@ export class HomePage {
     return this.http.post(`https://api.cloudinary.com/v1_1/${this.cloudinary.config().cloud_name}/upload`, formData)
       .pipe(
         catchError(error => {
-          alert("Error during upload !");
-          return throwError('Error');
+          this.loading.dismiss();
+          this.presentAlert(error.statusText, error.message);
+          return throwError(error);
         })
       );
   }
@@ -74,15 +101,16 @@ export class HomePage {
   private identifyPerson(secure_url: string): Observable<any> {
     const httpOptions = {
       headers: new HttpHeaders({
-        'Content-Type':  'application/json'
+        'Content-Type': 'application/json'
       })
     };
 
-    return this.http.post("https://capio.serveo.net/identify", { "image_url" : secure_url }, httpOptions)
+    return this.http.post("https://capio.serveo.net/identify", { "image_url": secure_url }, httpOptions)
       .pipe(
         catchError(error => {
-          console.log(error);
-          return throwError('Error');
+          this.loading.dismiss();
+          this.presentAlert(error.error.error, error.error.message);
+          return throwError(error);
         })
       );
   }
