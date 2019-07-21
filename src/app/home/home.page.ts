@@ -55,14 +55,26 @@ export class HomePage {
     const result = await this.cameraPreview.takePicture(this.cameraPictureOpts);
     this.picture = `data:image/jpeg;base64,${result}`;
     this.presentLoading("Uploading picture ...");
-    this.uploadPhoto(this.picture).subscribe(res => {
-      this.loading.dismiss();
-      this.presentLoading("Identifying picture ...");
-      this.identifyPerson(res.secure_url).subscribe(res => {
+    this.uploadPhoto(this.picture).subscribe(
+      (res) => {
         this.loading.dismiss();
-        this.presentAlert("Success", "user_id: " + res.user_id);
+        this.presentLoading("Identifying picture ...");
+        this.identifyPerson(res.secure_url).subscribe(
+          (res) => {
+            this.loading.dismiss();
+            this.presentAlert("Success", "Welcome, " + res.user_id + " 🤗");
+          },
+          (error) => {
+            //console.log(error)
+            this.loading.dismiss();
+            this.presentAlert("Error", "Unlucky, there is an error during face recognition 😫");
+          })
+      },
+      (error) => {
+        //console.log(error)
+        this.loading.dismiss();
+        this.presentAlert("Error", error.message);
       })
-    })
   }
 
   async presentAlert(statusText: string, message: string) {
@@ -76,13 +88,13 @@ export class HomePage {
   }
 
   async presentLoading(message: string) {
-    
+
     this.loading = await this.loadingController.create({
       message: message
     });
 
     await this.loading.present();
-  }s
+  }
 
   private uploadPhoto(image_url: string): Observable<any> {
     let formData = new FormData();
@@ -90,11 +102,11 @@ export class HomePage {
     formData.append('upload_preset', this.cloudinary.config().upload_preset);
     return this.http.post(`https://api.cloudinary.com/v1_1/${this.cloudinary.config().cloud_name}/upload`, formData)
       .pipe(
-        catchError(error => {
-          this.loading.dismiss();
-          this.presentAlert(error.statusText, error.message);
-          return throwError(error);
-        })
+        catchError(
+          (error) => {
+            console.log(error);
+            return Observable.throw(error);
+          })
       );
   }
 
@@ -105,13 +117,13 @@ export class HomePage {
       })
     };
 
-    return this.http.post("https://capio.serveo.net/identify", { "image_url": secure_url }, httpOptions)
+    return this.http.post("endpoint/identify", { "image_url": secure_url }, httpOptions)
       .pipe(
-        catchError(error => {
-          this.loading.dismiss();
-          this.presentAlert(error.error.error, error.error.message);
-          return throwError(error);
-        })
+        catchError(
+          (error) => {
+            console.log(error);
+            return Observable.throw(error);
+          })
       );
   }
 }
