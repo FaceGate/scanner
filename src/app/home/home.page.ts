@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import {
   CameraPreview,
   CameraPreviewOptions,
@@ -10,6 +10,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AlertController, LoadingController } from '@ionic/angular';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   selector: 'app-home',
@@ -33,7 +34,7 @@ export class HomePage {
     quality: 100
   };
 
-  constructor(private cameraPreview: CameraPreview, private cloudinary: Cloudinary, private http: HttpClient, public alertController: AlertController, public loadingController: LoadingController) { }
+  constructor(private cameraPreview: CameraPreview, private cloudinary: Cloudinary, private http: HttpClient, public alertController: AlertController, public loadingController: LoadingController, public dialog: MatDialog) { }
 
   ionViewDidEnter() {
     this.startCamera();
@@ -62,12 +63,22 @@ export class HomePage {
         this.identifyPerson(res.secure_url).subscribe(
           (res) => {
             this.loading.dismiss();
-            this.presentAlert("Success", "Welcome, " + res.user_id + " 🤗");
+            this.dialog.open(ResponseModalPage, {
+              width: '70%',
+              height: '40%',
+              data: res
+            });
+            //this.presentAlert("Success", "Welcome, " + res.user_id + " 🤗");
           },
           (error) => {
             //console.log(error)
             this.loading.dismiss();
-            this.presentAlert("Error", "Unlucky, there is an error during face recognition 😫");
+            this.dialog.open(ResponseModalPage, {
+              width: '70%',
+              height: '40%',
+              data: res
+            });
+            //this.presentAlert("Error", "Unlucky, there is an error during face recognition 😫");
           })
       },
       (error) => {
@@ -125,5 +136,28 @@ export class HomePage {
             return Observable.throw(error);
           })
       );
+  }
+}
+
+@Component({
+  selector: 'response-modal',
+  templateUrl: 'response-modal.html',
+  styleUrls: ['./home.page.scss']
+})
+export class ResponseModalPage implements OnInit {
+
+  constructor(
+      public dialogRef: MatDialogRef<ResponseModalPage>,
+      @Inject(MAT_DIALOG_DATA) public response: Response) {
+  }
+
+  ngOnInit() {
+    setTimeout(() => {
+      this.onNoClick();
+    }, 3000);
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
   }
 }

@@ -1,0 +1,10 @@
+<div *ngIf="res.success">
+    <p><i class="material-icons icon">check</i></p>
+    <p>Welcome</p>
+    <p>{{res.user_id + " 🤗"}} </p>
+</div>
+
+<div *ngIf="!res.success">
+    <p><i class="material-icons icon">Unlucky</i></p>
+    <p>There is an error during face recognition 😫</p>
+</div>
