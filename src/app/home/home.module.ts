@@ -18,6 +18,9 @@ import { HomePage, ResponseModalPage } from './home.page';
       }
     ])
   ],
-  declarations: [HomePage, ResponseModalPage]
+  declarations: [HomePage, ResponseModalPage],
+  entryComponents: [
+    ResponseModalPage
+  ]
 })
 export class HomePageModule { }
