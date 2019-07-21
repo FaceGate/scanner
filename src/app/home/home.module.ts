@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
-import { HomePage, ResponseModalPage } from './home.page';
+import { HomePage } from './home.page';
 
 @NgModule({
   imports: [
@@ -18,9 +18,6 @@ import { HomePage, ResponseModalPage } from './home.page';
       }
     ])
   ],
-  declarations: [HomePage, ResponseModalPage],
-  entryComponents: [
-    ResponseModalPage
-  ]
+  declarations: [HomePage]
 })
 export class HomePageModule { }

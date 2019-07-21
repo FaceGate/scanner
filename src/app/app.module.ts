@@ -16,12 +16,10 @@ import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import * as  Cloudinary from 'cloudinary-core';
 import cloudinaryConfiguration from './config';
 
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
-  imports: [BrowserModule, HttpClientModule, IonicModule.forRoot(), AppRoutingModule, CloudinaryModule.forRoot(Cloudinary, cloudinaryConfiguration), BrowserAnimationsModule],
+  imports: [BrowserModule, HttpClientModule, IonicModule.forRoot(), AppRoutingModule, CloudinaryModule.forRoot(Cloudinary, cloudinaryConfiguration)],
   providers: [
     StatusBar,
     SplashScreen,
