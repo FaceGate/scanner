@@ -62,12 +62,11 @@ export class HomePage {
         this.identifyPerson(res.secure_url).subscribe(
           (res) => {
             this.loading.dismiss();
-            this.presentAlert("Success", "Welcome, " + res.user_id + " 🤗");
+            this.presentAlert("Authorized", "Welcome " + res.first_name + " " + res.last_name + " 🤗");
           },
           (error) => {
-            //console.log(error)
             this.loading.dismiss();
-            this.presentAlert("Error", "Unlucky, there is an error during face recognition 😫");
+            this.presentAlert("Access denied", "Unlucky, there is an error during face recognition 😫");
           })
       },
       (error) => {
@@ -105,7 +104,7 @@ export class HomePage {
         catchError(
           (error) => {
             console.log(error);
-            return Observable.throw(error);
+            return throwError(error);
           })
       );
   }
@@ -122,7 +121,7 @@ export class HomePage {
         catchError(
           (error) => {
             console.log(error);
-            return Observable.throw(error);
+            return throwError(error);
           })
       );
   }
